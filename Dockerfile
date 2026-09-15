@@ -1,12 +1,23 @@
+# Stage 1: build dependencies
+FROM python:3.13-slim AS builder
+
+WORKDIR /build
+
+COPY api/requirements.txt .
+
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
+
+
+# Stage 2: runtime image
 FROM python:3.13-slim
 
 WORKDIR /app
 
-COPY api/requirements.txt /app/api/requirements.txt
+COPY --from=builder /install /usr/local
 
-RUN pip install --no-cache-dir -r /app/api/requirements.txt
-
-COPY . .
+COPY api ./api
+COPY ingest ./ingest
+COPY data ./data
 
 EXPOSE 8000
 
